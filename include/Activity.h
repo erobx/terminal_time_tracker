@@ -17,5 +17,5 @@ struct DBActivity : Activity {
     std::string time_start;
     std::string time_end;
     std::string duration;
-    // std::string date;
+    std::string date;
 };

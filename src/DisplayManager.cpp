@@ -66,6 +66,7 @@ void DisplayManager::displayAct(Activity &act) {
     drawInput("Start: " + act.time_start);
     drawInput("End: " + act.time_end);
     drawInput("Duration: " + act.duration);
+    drawInput("Date: " + act.date);
 }
 
 void DisplayManager::congrats() {
@@ -143,7 +144,6 @@ Activity DisplayManager::takeInput() {
         if (valid)
             act.date = date;
     }
-
 
     try {
         act.secs_duration = act.secs_end - act.secs_start;

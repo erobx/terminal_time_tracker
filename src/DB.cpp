@@ -41,7 +41,8 @@ void DB::createTable() {
             "NAME TEXT NOT NULL, "
             "TIME_START TEXT NOT NULL, "
             "TIME_END TEXT NOT NULL, "
-            "DURATION TEXT NOT NULL"
+            "DURATION TEXT NOT NULL, "
+            "DATE TEXT NOT NULL"
           ");";
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
 }
@@ -49,10 +50,10 @@ void DB::createTable() {
 void DB::insertData(Activity act) {
     char* query = 0;
 
-    sql = "INSERT INTO Activities ('NAME', 'TIME_START', 'TIME_END', 'DURATION')"
-          "VALUES ('%s', '%s', '%s', '%s');";
+    sql = "INSERT INTO Activities ('NAME', 'TIME_START', 'TIME_END', 'DURATION', 'DATE')"
+          "VALUES ('%s', '%s', '%s', '%s', '%s');";
 
-    asprintf(&query, sql.c_str(), act.name.c_str(), act.time_start.c_str(), act.time_end.c_str(), act.duration.c_str());
+    asprintf(&query, sql.c_str(), act.name.c_str(), act.time_start.c_str(), act.time_end.c_str(), act.duration.c_str(), act.date.c_str());
 
     sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
@@ -110,17 +111,20 @@ void DB::loadActivities(u_map_sa &acts) {
         const u_char* start = sqlite3_column_text(stmt, 2);
         const u_char* end   = sqlite3_column_text(stmt, 3);
         const u_char* dur   = sqlite3_column_text(stmt, 4);
+        const u_char* date  = sqlite3_column_text(stmt, 5);
 
         string name_str = convertCharToString(name);
         string start_str = convertCharToString(start);
         string end_str = convertCharToString(end);
         string dur_str = convertCharToString(dur);
+        string date_str = convertCharToString(date);
 
         DBActivity newAct = {
             name_str,
             start_str,
             end_str,
             dur_str,
+            date_str
         };
 
         acts.emplace(newAct.name, newAct);

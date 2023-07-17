@@ -3,8 +3,11 @@
 #include <iostream>
 #include <exception>
 #include <cstring>
+#include <regex>
 
 using std::string;
+using std::regex;
+using std::exception;
 using namespace HelperFuncs;
 
 Name HelperFuncs::parseNameInput(string name, int length) {
@@ -14,7 +17,7 @@ Name HelperFuncs::parseNameInput(string name, int length) {
     int act_len = act_str.length();
 
     try {
-        if (name.length() + act_len >= length - 2) throw std::exception{};
+        if (name.length() + act_len >= length - 2) throw exception{};
     } catch (...) {
         std::cout << "Name too long!" << std::endl;
         flag = false;
@@ -35,37 +38,37 @@ Time HelperFuncs::parseTimeInput(string time) {
         int semicolon_pos = time.find(":");
         int space_pos = time.find(" ");
 
-        if (semicolon_pos == -1) throw std::exception{};
-        if (space_pos == -1) throw std::exception{};
+        if (semicolon_pos == -1) throw exception{};
+        if (space_pos == -1) throw exception{};
 
         // parse hours
         string temp = time.substr(0, semicolon_pos);
-        if (temp.length() > 2) throw std::exception{};
+        if (temp.length() > 2) throw exception{};
         try {
             hours = stoi(temp);
-            if (hours < 1 || hours > 12) throw std::exception{};
+            if (hours < 1 || hours > 12) throw exception{};
             hours = hours * 3600;
         } catch (...) {throw;}
 
         // parse mins
         temp = time.substr(semicolon_pos+1, 2);
-        if (temp.length() > 2 || temp.length() == 1) throw std::exception{};
+        if (temp.length() > 2 || temp.length() == 1) throw exception{};
         try {
             mins = stoi(temp);
-            if (mins < 0 || mins > 59) throw std::exception{};
+            if (mins < 0 || mins > 59) throw exception{};
             mins = mins * 60;
         } catch (...) {throw;}
 
         // parse AM/PM
         temp = time.substr(space_pos+1);
-        if (temp.length() != 2) throw std::exception{};
+        if (temp.length() != 2) throw exception{};
         try {
             const char* am = "AM";
             const char* pm = "PM";
 
             if (strcasecmp(am, temp.c_str()) != 0) {
                 if (strcasecmp(pm, temp.c_str()) != 0) {
-                    throw std::exception{};
+                    throw exception{};
                 }
             }
 
@@ -92,23 +95,48 @@ Date HelperFuncs::parseDateInput(string date) {
     Date result;
     bool flag = true;
 
-    // MM/DD/YY
+    // sanitize
+    regex specialChars { R"([-[\],'"A-z;[\^$.|?*+(){}.])" };
+    date = regex_replace(date, specialChars, "");
+
     try {
-        int slash_pos = date.find("/");
-        
-        // if no / is found initially
-        if (slash_pos == -1) throw std::exception{};
+        int first_pos = date.find("/");
+        int sec_pos = date.find_last_of("/");
 
-        /*
-            1. MM/DD/YY 01-12, 01-31, 00-99
-            2. DD/YY
-            3. YY
-        */
-        
+        if (first_pos == -1) throw exception{};
+        if (sec_pos == -1) throw exception{};
 
+        string months_str = date.substr(0, first_pos);
 
+        string days_str;
+        if (months_str.length() == 1)
+            days_str = date.substr(first_pos+1, sec_pos-2);
+        else if (months_str.length() == 2)
+            days_str = date.substr(first_pos+1, sec_pos-3);
+
+        string years_str = date.substr(sec_pos+1);
+
+        if (years_str.length() < 2) throw exception{};
+
+        try {
+            int months = stoi(months_str);
+            if (months < 1 || months > 12) throw exception{};
+
+        } catch (...) {throw;}
+
+        try {
+            int days = stoi(days_str);
+            if (days < 1 || days > 31) throw exception{};
+
+        } catch (...) {throw;}
+
+        try {
+            int years = stoi(years_str);
+            if (years < 0 || years > 99) throw exception{};
+
+        } catch (...) {throw;}
     } catch (...) {
-        std::cout << "Invalid date" << std::endl;
+        std::cout << "Invalid date" << "\n";
         flag = false;
     }
 
