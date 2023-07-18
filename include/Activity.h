@@ -11,11 +11,3 @@ struct Activity {
     int secs_end;
     int secs_duration;
 };
-
-struct DBActivity : Activity {
-    std::string name;
-    std::string time_start;
-    std::string time_end;
-    std::string duration;
-    std::string date;
-};

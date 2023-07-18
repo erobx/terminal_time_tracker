@@ -1,18 +1,21 @@
 #include <DisplayManager.h>
 #include <Helper.h>
 #include <iostream>
+#include <sstream>
 
 using std::string;
+using std::cout;
+using std::endl;
 using namespace HelperFuncs;
 
 void DisplayManager::drawHorLine() {
-    std::cout << line << std::endl;
+    cout << line << endl;
 }
 
 void DisplayManager::drawVertLine() {
-    std::cout << "|";
-    for (int i = 0; i < spaces; i++) {std::cout << " ";};
-    std::cout << "|" << std::endl;
+    cout << "|";
+    for (int i = 0; i < spaces; i++) {cout << " ";};
+    cout << "|" << endl;
 }
 
 void DisplayManager::drawMultiLine(int n) {
@@ -30,23 +33,23 @@ void DisplayManager::drawBot(int n) {
 }
 
 void DisplayManager::drawEven(int offset, string input) {
-    std::cout << "|";
-    for (int i = 0; i < offset; i++) {std::cout << " ";};
+    cout << "|";
+    for (int i = 0; i < offset; i++) {cout << " ";};
 
-    std::cout << input;
+    cout << input;
     
-    for (int i = 0; i < offset-1; i++) {std::cout << " ";};
-    std::cout << "|" << std::endl;
+    for (int i = 0; i < offset-1; i++) {cout << " ";};
+    cout << "|" << endl;
 }
 
 void DisplayManager::drawOdd(int offset, string input) {
-    std::cout << "|";
-    for (int i = 0; i < offset; i++) {std::cout << " ";};
+    cout << "|";
+    for (int i = 0; i < offset; i++) {cout << " ";};
 
-    std::cout << input;
+    cout << input;
     
-    for (int i = 0; i < offset; i++) {std::cout << " ";};
-    std::cout << "|" << std::endl;
+    for (int i = 0; i < offset; i++) {cout << " ";};
+    cout << "|" << endl;
 }
 
 void DisplayManager::drawInput(string input) {
@@ -69,19 +72,24 @@ void DisplayManager::displayAct(Activity &act) {
     drawInput("Date: " + act.date);
 }
 
-void DisplayManager::congrats() {
+void DisplayManager::drawMenu() {
     drawTop(2);
-
-    drawInput("Congrats! New high score!");
-
+    drawInput("1. Add an activity");
+    drawInput("2. Display an activity");
+    drawInput("3. Display all activities");
+    drawInput("4. To quit");
     drawBot(2);
 }
 
-void DisplayManager::drawTable(Activity &act) {
+void DisplayManager::congrats() {
     drawTop(2);
+    drawInput("Congrats! New high score!");
+    drawBot(2);
+}
 
+void DisplayManager::drawActTable(Activity &act) {
+    drawTop(2);
     displayAct(act);
-
     drawBot(2);
 }
 
@@ -89,25 +97,24 @@ Activity DisplayManager::takeInput() {
     Activity act;
     bool valid = false;
     string time_format = "HH:MM AM/PM";
-    string date_format = "MM/DD/YY";
+    string date_format = "YYYY-MM-DD";        // YYYY-MM-DD per ISO 8601 strings
 
     while (!valid) {
         Name res;
         string name = "";
-        std::cout << "Enter activity name: ";
+        cout << "Enter activity name: ";
         getline(std::cin, name);
         res = parseNameInput(name, line.length());
         valid = res.flag;
         if (valid)
             act.name = res.name;
     }
-
+    INPUT:
     valid = false;
-
     while (!valid) {
         Time res;
         string time = "";
-        std::cout << "(" << time_format << ")" << " Enter start time: ";
+        cout << "(" << time_format << ")" << " Enter start time: ";
         getline(std::cin, time);
         res = parseTimeInput(time);
         valid = res.flag;
@@ -118,11 +125,10 @@ Activity DisplayManager::takeInput() {
     }
 
     valid = false;
-
     while (!valid) {
         Time res;
         string time = "";
-        std::cout << "(" << time_format << ")" << " Enter end time: ";
+        cout << "(" << time_format << ")" << " Enter end time: ";
         getline(std::cin, time);
         res = parseTimeInput(time);
         valid = res.flag;
@@ -133,11 +139,10 @@ Activity DisplayManager::takeInput() {
     }
 
     valid = false;
-
     while (!valid) {
         Date res;
         string date = "";
-        std::cout << "(" << date_format << ")" << " Enter date: ";
+        cout << "(" << date_format << ")" << " Enter date: ";
         getline(std::cin, date);
         res = parseDateInput(date);
         valid = res.flag;
@@ -145,15 +150,32 @@ Activity DisplayManager::takeInput() {
             act.date = date;
     }
 
-    try {
-        act.secs_duration = act.secs_end - act.secs_start;
-        if (act.secs_duration < 0) throw std::exception{};
-        act.duration = secsToTime(act.secs_duration);
-        std::cout << "Duration: " << act.duration << std::endl;
-    } catch (...) {
-        std::cout << "End time is earlier than start time." << std::endl;
-    }
+    if (!calcDuration(act))
+        goto INPUT;
     
     return act;
+}
+
+string DisplayManager::getName() {
+    string name;
+    cout << "Enter activity name: ";
+    getline(std::cin, name);
+    return name;
+}
+
+int DisplayManager::getInt(string prompt) {
+    int ret_int;
+    string str_num;
+
+    while (true) {
+        cout << prompt;
+        getline(std::cin, str_num);
+        std::stringstream convert(str_num);
+
+        if (convert >> ret_int && !(convert >> str_num)) return ret_int;
+
+        std::cin.clear();
+        std::cerr << "Input was not a valid integer!\n"; 
+    }
 }
 

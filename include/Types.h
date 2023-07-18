@@ -1,5 +1,6 @@
 #include <Activity.h>
 #include <unordered_map>
+#include <vector>
 #include <string>
 
-typedef std::unordered_map<std::string, Activity> u_map_sa;
+typedef std::unordered_map<std::string, std::vector<Activity>> actmap;

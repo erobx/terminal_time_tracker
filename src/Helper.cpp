@@ -32,7 +32,7 @@ Name HelperFuncs::parseNameInput(string name, int length) {
 Time HelperFuncs::parseTimeInput(string time) {
     Time result;
     bool flag = true;
-    int hours, mins = 0;
+    int hours, mins, extra = 0;
 
     try {
         int semicolon_pos = time.find(":");
@@ -77,6 +77,8 @@ Time HelperFuncs::parseTimeInput(string time) {
                 time = time.substr(0, space_pos+1) + am;
             } else {
                 time = time.substr(0, space_pos+1) + pm;
+                if ((hours/3600) < 12)
+                    extra = 43200;
             }
         } catch (...) {throw;}
     } catch (...) {
@@ -86,7 +88,7 @@ Time HelperFuncs::parseTimeInput(string time) {
 
     result.time = time;
     result.flag = flag;
-    result.secs = hours + mins;
+    result.secs = hours + mins + extra;
 
     return result;
 }
@@ -96,27 +98,25 @@ Date HelperFuncs::parseDateInput(string date) {
     bool flag = true;
 
     // sanitize
-    regex specialChars { R"([-[\],'"A-z;[\^$.|?*+(){}.])" };
+    regex specialChars { R"([[\],'"A-z;[\^$/.|?*+(){}.])" };
     date = regex_replace(date, specialChars, "");
 
+    // YYYY-MM-DD
     try {
-        int first_pos = date.find("/");
-        int sec_pos = date.find_last_of("/");
+        int first_pos = date.find("-");
+        int sec_pos = date.find_last_of("-");
 
         if (first_pos == -1) throw exception{};
         if (sec_pos == -1) throw exception{};
 
-        string months_str = date.substr(0, first_pos);
+        string years_str = date.substr(0, first_pos);
+        if (years_str.length() < 4) throw exception{};
 
-        string days_str;
-        if (months_str.length() == 1)
-            days_str = date.substr(first_pos+1, sec_pos-2);
-        else if (months_str.length() == 2)
-            days_str = date.substr(first_pos+1, sec_pos-3);
-
-        string years_str = date.substr(sec_pos+1);
-
+        string months_str = date.substr(first_pos+1, 2);
         if (years_str.length() < 2) throw exception{};
+
+        string days_str = date.substr(sec_pos+1);
+        if (days_str.length() < 2) throw exception{};
 
         try {
             int months = stoi(months_str);
@@ -132,7 +132,7 @@ Date HelperFuncs::parseDateInput(string date) {
 
         try {
             int years = stoi(years_str);
-            if (years < 0 || years > 99) throw exception{};
+            if (years < 0 || years > 9999) throw exception{};
 
         } catch (...) {throw;}
     } catch (...) {
@@ -144,6 +144,18 @@ Date HelperFuncs::parseDateInput(string date) {
     result.flag = flag;
 
     return result;
+}
+
+bool HelperFuncs::calcDuration(Activity &act) {
+    try {
+        act.secs_duration = act.secs_end - act.secs_start;
+        if (act.secs_duration < 0) throw std::exception{};
+        act.duration = secsToTime(act.secs_duration);
+        return true;
+    } catch (...) {
+        std::cout << "End time is earlier than start time." << std::endl;
+    }
+    return false;
 }
 
 string HelperFuncs::secsToTime(int secs) {

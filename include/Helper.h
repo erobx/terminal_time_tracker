@@ -21,6 +21,7 @@ namespace HelperFuncs {
     Name parseNameInput(std::string name, int length);
     Time parseTimeInput(std::string time);
     Date parseDateInput(std::string date);
+    bool calcDuration(Activity &act);
     std::string secsToTime(int secs);
 
     // DB loadActivities

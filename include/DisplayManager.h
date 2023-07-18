@@ -3,7 +3,7 @@
 
 class DisplayManager {
     private:
-        std::string line = "---------------------------";
+        std::string line = "-------------------------------------";
         int spaces = line.length()-2;
         void drawHorLine();
         void drawVertLine();
@@ -14,8 +14,15 @@ class DisplayManager {
         void drawOdd(int offset, std::string input);
         void drawInput(std::string input);
         void displayAct(Activity &act);
+
     public:
-        void drawTable(Activity &act);
+        void drawActTable(Activity &act);
+        void drawMenu();
         void congrats();
         Activity takeInput();
+
+        // user input
+        std::string getName();
+        int getInt(std::string prompt);
+
 };

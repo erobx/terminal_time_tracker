@@ -16,10 +16,10 @@ class DB {
         void createTable();
     public:
         DB();
-        void insertData(Activity act);
+        void insertAct(Activity act);
         void showTable();
-        void deleteRow(std::string id);
+        void deleteRow(int id);
         void closeDB();
         void dropTable();
-        void loadActivities(u_map_sa &acts);
+        
 };

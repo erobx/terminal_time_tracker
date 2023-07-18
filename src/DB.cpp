@@ -39,21 +39,21 @@ void DB::createTable() {
     sql = "CREATE TABLE IF NOT EXISTS Activities ("
             "ID INTEGER PRIMARY KEY, "
             "NAME TEXT NOT NULL, "
-            "TIME_START TEXT NOT NULL, "
-            "TIME_END TEXT NOT NULL, "
-            "DURATION TEXT NOT NULL, "
+            "TIME_START INT NOT NULL, "
+            "TIME_END INT NOT NULL, "
+            "DURATION INT NOT NULL, "
             "DATE TEXT NOT NULL"
           ");";
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
 }
 
-void DB::insertData(Activity act) {
+void DB::insertAct(Activity act) {
     char* query = 0;
 
     sql = "INSERT INTO Activities ('NAME', 'TIME_START', 'TIME_END', 'DURATION', 'DATE')"
-          "VALUES ('%s', '%s', '%s', '%s', '%s');";
+          "VALUES ('%s', '%i', '%i', '%i', '%s');";
 
-    asprintf(&query, sql.c_str(), act.name.c_str(), act.time_start.c_str(), act.time_end.c_str(), act.duration.c_str(), act.date.c_str());
+    asprintf(&query, sql.c_str(), act.name.c_str(), act.secs_start, act.secs_end, act.secs_duration, act.date.c_str());
 
     sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
@@ -70,11 +70,11 @@ void DB::showTable() {
     rc = sqlite3_exec(db, sql.c_str(), printCallback, 0, &errMsg);
 }
 
-void DB::deleteRow(string id) {
+void DB::deleteRow(int id) {
     char *query = NULL;
 
     // Build a string using asprintf()
-    asprintf(&query, "DELETE FROM Activities WHERE ID = '%s';", id.c_str());
+    asprintf(&query, "DELETE FROM Activities WHERE ID = '%i';", id);
 
     // Prepare the query
     sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
@@ -99,37 +99,3 @@ void DB::dropTable() {
     rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
 }
 
-void DB::loadActivities(u_map_sa &acts) {
-    sql = "SELECT * FROM Activities;";
-
-    rc = sqlite3_prepare(db, sql.c_str(), -1, &stmt, NULL);
-    checkDBErrors();
-
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        int id              = sqlite3_column_int (stmt, 0);
-        const u_char* name  = sqlite3_column_text(stmt, 1);
-        const u_char* start = sqlite3_column_text(stmt, 2);
-        const u_char* end   = sqlite3_column_text(stmt, 3);
-        const u_char* dur   = sqlite3_column_text(stmt, 4);
-        const u_char* date  = sqlite3_column_text(stmt, 5);
-
-        string name_str = convertCharToString(name);
-        string start_str = convertCharToString(start);
-        string end_str = convertCharToString(end);
-        string dur_str = convertCharToString(dur);
-        string date_str = convertCharToString(date);
-
-        DBActivity newAct = {
-            name_str,
-            start_str,
-            end_str,
-            dur_str,
-            date_str
-        };
-
-        acts.emplace(newAct.name, newAct);
-    }
-
-    // checkDBErrors();
-    sqlite3_finalize(stmt);
-}
