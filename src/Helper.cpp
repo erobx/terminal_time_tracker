@@ -47,7 +47,10 @@ Time HelperFuncs::parseTimeInput(string time) {
         try {
             hours = stoi(temp);
             if (hours < 1 || hours > 12) throw exception{};
-            hours = hours * 3600;
+            if (hours == 12)
+                hours = 0;
+            else
+                hours = hours * 3600;
         } catch (...) {throw;}
 
         // parse mins
@@ -147,11 +150,21 @@ Date HelperFuncs::parseDateInput(string date) {
 }
 
 bool HelperFuncs::calcDuration(Activity &act) {
+    bool wrap = false;
+    if ((act.time_start.find("PM") != -1) && (act.time_end.find("AM") != -1))
+        wrap = true;
+
     try {
-        act.secs_duration = act.secs_end - act.secs_start;
-        if (act.secs_duration < 0) throw std::exception{};
-        act.duration = secsToTime(act.secs_duration);
-        return true;
+        if (wrap) {
+            act.secs_duration = (12*3600) + ((12*3600) - act.secs_start);
+            act.duration = secsToDuration(act.secs_duration);
+            return true;
+        } else {
+            act.secs_duration = act.secs_end - act.secs_start;
+            if (act.secs_duration < 0) throw std::exception{};
+            act.duration = secsToDuration(act.secs_duration);
+            return true;
+        }
     } catch (...) {
         std::cout << "End time is earlier than start time." << std::endl;
     }
@@ -159,6 +172,49 @@ bool HelperFuncs::calcDuration(Activity &act) {
 }
 
 string HelperFuncs::secsToTime(int secs) {
+    // HH:MM AM/PM
+    int hrs, mins = 0;
+    string result, hrs_str, mins_str;
+
+    if (secs >= (12*3600)) {
+        // pm
+        hrs = (secs / 3600);
+        secs = secs - (hrs * 3600);
+        mins = secs / 60;
+
+        if (hrs == 12)
+            hrs_str = std::to_string(hrs);
+        else
+            hrs_str = std::to_string(hrs-12);
+
+        if (mins >= 0 && mins < 10)
+            mins_str = "0" + std::to_string(mins);
+        else
+            mins_str = std::to_string(mins);
+ 
+        result = hrs_str + ":" + mins_str + " PM";
+    } else {
+        // am
+        hrs = (secs / 3600);
+        secs = secs - (hrs * 3600);
+        mins = secs / 60;
+
+        if (hrs == 0)
+            hrs_str = std::to_string(12);
+        else
+            hrs_str = std::to_string(hrs);
+
+        if (mins >= 0 && mins < 10)
+            mins_str = "0" + std::to_string(mins);
+        else
+            mins_str = std::to_string(mins);
+
+        result = hrs_str + ":" + mins_str + " AM";
+    }    
+    return result;
+}
+
+string HelperFuncs::secsToDuration(int secs) {
     int hrs = secs / 3600;
     secs = secs - (hrs * 3600);
     int mins = secs / 60;
@@ -188,3 +244,17 @@ string HelperFuncs::convertCharToString(const u_char* s) {
     return string(temp);
 }
 
+Activity HelperFuncs::convertRowToAct(int count, char* data[]) {
+    Activity act = {
+        data[1],
+        secsToTime(std::stoi(data[2])),
+        secsToTime(std::stoi(data[3])),
+        secsToDuration(std::stoi(data[4])),
+        data[5],
+        std::stoi(data[2]),
+        std::stoi(data[3]),
+        std::stoi(data[4]),
+    };
+
+    return act;
+}

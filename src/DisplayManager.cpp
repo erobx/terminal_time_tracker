@@ -75,7 +75,7 @@ void DisplayManager::displayAct(Activity &act) {
 void DisplayManager::drawMenu() {
     drawTop(2);
     drawInput("1. Add an activity");
-    drawInput("2. Display an activity");
+    drawInput("2. Find an activity");
     drawInput("3. Display all activities");
     drawInput("4. To quit");
     drawBot(2);

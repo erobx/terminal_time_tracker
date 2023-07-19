@@ -1,4 +1,5 @@
 #include <DB.h>
+#include <DisplayManager.h>
 #include <Types.h>
 #include <Helper.h>
 #include <cstring>
@@ -8,15 +9,11 @@ using std::string;
 using namespace HelperFuncs;
 
 int DB::printCallback(void *notUsed, int count, char* data[], char* cols[]) {
-    int idx;
+    DisplayManager dm;
+    Activity act = convertRowToAct(count, data);
 
-    std::cout << "There are " << count << " column(s)" << "\n";
+    dm.drawActTable(act);
 
-    for (idx = 0; idx < count; idx++) {
-        std::cout << "The data in column " << cols[idx] << " is: " << data[idx] << "\n";
-    }
-
-    std::cout << "\n";
     return 0;
 }
 
@@ -32,7 +29,6 @@ DB::DB() {
     rc = sqlite3_open("database.db", &db);
     checkDBErrors();
     createTable();
-    // std::cout << "DB Opened" << "\n\n";
 }
 
 void DB::createTable() {

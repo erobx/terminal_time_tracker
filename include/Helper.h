@@ -17,13 +17,16 @@ namespace HelperFuncs {
         bool flag;
     };
 
-    // DM takeInput
+    // DM
     Name parseNameInput(std::string name, int length);
     Time parseTimeInput(std::string time);
     Date parseDateInput(std::string date);
     bool calcDuration(Activity &act);
+    
     std::string secsToTime(int secs);
+    std::string secsToDuration(int secs);
 
-    // DB loadActivities
+    // DB
     std::string convertCharToString(const u_char* s);
+    Activity convertRowToAct(int count, char* data[]);
 };

@@ -11,9 +11,9 @@
 int main() {
     Tracker tracker;
 
-    tracker.addActivity();
+    // tracker.addActivity();
     tracker.showTable();
-    tracker.dropTable();
+    // tracker.dropTable();
     // tracker.displayAll();
 
     return 0;

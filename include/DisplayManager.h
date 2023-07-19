@@ -19,9 +19,9 @@ class DisplayManager {
         void drawActTable(Activity &act);
         void drawMenu();
         void congrats();
-        Activity takeInput();
 
         // user input
+        Activity takeInput();
         std::string getName();
         int getInt(std::string prompt);
 
