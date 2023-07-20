@@ -116,7 +116,7 @@ Date HelperFuncs::parseDateInput(string date) {
         if (years_str.length() < 4) throw exception{};
 
         string months_str = date.substr(first_pos+1, 2);
-        if (years_str.length() < 2) throw exception{};
+        if (months_str.find("-") != -1) throw exception{};
 
         string days_str = date.substr(sec_pos+1);
         if (days_str.length() < 2) throw exception{};
@@ -156,7 +156,7 @@ bool HelperFuncs::calcDuration(Activity &act) {
 
     try {
         if (wrap) {
-            act.secs_duration = (12*3600) + ((12*3600) - act.secs_start);
+            act.secs_duration = (12*3600+act.secs_end) - (act.secs_start - (12*3600));
             act.duration = secsToDuration(act.secs_duration);
             return true;
         } else {
@@ -258,3 +258,4 @@ Activity HelperFuncs::convertRowToAct(int count, char* data[]) {
 
     return act;
 }
+

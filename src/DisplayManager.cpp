@@ -9,13 +9,13 @@ using std::endl;
 using namespace HelperFuncs;
 
 void DisplayManager::drawHorLine() {
-    cout << line << endl;
+    cout << "\033[35m" << line << reset << endl;
 }
 
 void DisplayManager::drawVertLine() {
-    cout << "|";
+    cout << vert;
     for (int i = 0; i < spaces; i++) {cout << " ";};
-    cout << "|" << endl;
+    cout << vert << endl;
 }
 
 void DisplayManager::drawMultiLine(int n) {
@@ -32,58 +32,60 @@ void DisplayManager::drawBot(int n) {
     drawHorLine();
 }
 
-void DisplayManager::drawEven(int offset, string input) {
-    cout << "|";
+void DisplayManager::drawEven(int offset, string input, string color) {
+    cout << vert;
     for (int i = 0; i < offset; i++) {cout << " ";};
 
-    cout << input;
+    string paint = "\033[" + color + "m";
+    cout << paint << input << reset;
     
     for (int i = 0; i < offset-1; i++) {cout << " ";};
-    cout << "|" << endl;
+    cout << vert << endl;
 }
 
-void DisplayManager::drawOdd(int offset, string input) {
-    cout << "|";
+void DisplayManager::drawOdd(int offset, string input, string color) {
+    cout << vert;
     for (int i = 0; i < offset; i++) {cout << " ";};
 
-    cout << input;
-    
+    string paint = "\033[" + color + "m";
+    cout << paint << input << reset;
+
     for (int i = 0; i < offset; i++) {cout << " ";};
-    cout << "|" << endl;
+    cout << vert << endl;
 }
 
-void DisplayManager::drawInput(string input) {
+void DisplayManager::drawInput(string input, string color) {
     int offset = 0;
 
     if (input.length() % 2 == 0) {
         offset = (spaces - input.length())/2 + 1;
-        drawEven(offset, input);
+        drawEven(offset, input, color);
     } else {
         offset = (spaces - input.length())/2;
-        drawOdd(offset, input);
+        drawOdd(offset, input, color);
     }
 }
 
 void DisplayManager::displayAct(Activity &act) {
-    drawInput("Activity: " + act.name);
-    drawInput("Start: " + act.time_start);
-    drawInput("End: " + act.time_end);
-    drawInput("Duration: " + act.duration);
-    drawInput("Date: " + act.date);
+    drawInput("Activity: " + act.name, "31");
+    drawInput("Start: " + act.time_start, "34");
+    drawInput("End: " + act.time_end, "34");
+    drawInput("Duration: " + act.duration, "33");
+    drawInput("Date: " + act.date, "33");
 }
 
 void DisplayManager::drawMenu() {
     drawTop(2);
-    drawInput("1. Add an activity");
-    drawInput("2. Find an activity");
-    drawInput("3. Display all activities");
-    drawInput("4. To quit");
+    drawInput("1. Add an activity", "32");
+    drawInput("2. Find an activity", "34");
+    drawInput("3. Display all activities", "33");
+    drawInput("4. To quit", "31");
     drawBot(2);
 }
 
 void DisplayManager::congrats() {
     drawTop(2);
-    drawInput("Congrats! New high score!");
+    drawInput("Congrats! New high score!", "34");
     drawBot(2);
 }
 

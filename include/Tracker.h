@@ -7,23 +7,18 @@ class Tracker {
     private:
         DisplayManager dm;
         DB db;
-        void loadActivities();
         void closeDB();
-        void insertData();
-
         void start();
+
+        void findActivity(std::string name);
+        void addActivity();
+        void displayAll();
+
+        void dropTable();
+        void showTable();
+
     public:
         Tracker();
         ~Tracker();
         Tracker(Tracker &t);
-
-        // DM API
-        void displayActivity(std::string name);
-        void addActivity();
-        void displayAll();
-
-        // DB API
-        void dropTable();
-        void showTable();
-
 };

@@ -22,23 +22,24 @@ void Tracker::start() {
 
         switch (i) {
             case 1:
-                // addActivity();
+                addActivity();
                 break;
             case 2:
                 // name = dm.getName();
                 // displayActivity(name);
                 break;
             case 3:
-                // displayAll();
+                displayAll();
+                break;
+            case -1:
+                dropTable();
                 break;
         }
-
     } while (i != 4);
 }
 
 Tracker::Tracker() {
-    // dm.congrats();
-    // start();
+    start();
 }
 
 Tracker::~Tracker() {
@@ -50,9 +51,8 @@ Tracker::Tracker(Tracker &t) {
     this->db = t.db;
 }
 
-// void Tracker::displayActivity(std::string name) {
-//     std::vector<Activity> list_of_acts = activities.at(name);
-
+// void Tracker::findActivity(std::string name) {
+    
 // }
 
 void Tracker::addActivity() {
@@ -60,15 +60,7 @@ void Tracker::addActivity() {
     db.insertAct(act);
 }
 
-// void Tracker::displayAll() {
-//     for (auto it = activities.begin(); it != activities.end(); it++) {
-//         displayActivity(it->first);
-//     }
-// }
-
-// void Tracker::insertData() {
-//     for (auto it = newActs.begin(); it != newActs.end(); it++) {
-//         db.insertData(it->second);
-//     }
-// }
+void Tracker::displayAll() {
+    db.showTable();
+}
 
