@@ -8,11 +8,28 @@
 using std::string;
 using namespace HelperFuncs;
 
-int DB::printCallback(void *notUsed, int count, char* data[], char* cols[]) {
-    DisplayManager dm;
+int DB::printCallback(void *dm, int count, char* data[], char* cols[]) {
+    Activity act = convertRowToAct(count, data);
+    DisplayManager *ptr = static_cast<DisplayManager*>(dm);
+
+    (*ptr).drawActTable(act);
+
+    return 0;
+}
+
+int DB::distinctCallback(void *v, int count, char* data[], char* cols[]) {
+    std::vector<string> *names = static_cast<std::vector<string>*>(v);
+
+    names->push_back(data[0]);
+
+    return 0;
+}
+
+int DB::findCallback(void *v, int count, char* data[], char* cols[]) {
+    actmap *acts = static_cast<actmap*>(v);
     Activity act = convertRowToAct(count, data);
 
-    dm.drawActTable(act);
+    acts->emplace(atoi(data[0]), act);
 
     return 0;
 }
@@ -49,7 +66,10 @@ void DB::insertAct(Activity act) {
     sql = "INSERT INTO Activities ('NAME', 'TIME_START', 'TIME_END', 'DURATION', 'DATE')"
           "VALUES ('%s', '%i', '%i', '%i', '%s');";
 
-    asprintf(&query, sql.c_str(), act.name.c_str(), act.secs_start, act.secs_end, act.secs_duration, act.date.c_str());
+    asprintf(
+        &query, sql.c_str(), act.name.c_str(), act.secs_start, 
+        act.secs_end, act.secs_duration, act.date.c_str()
+    );
 
     sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
@@ -60,34 +80,62 @@ void DB::insertAct(Activity act) {
     free(query);
 }
 
-void DB::showTable() {
+void DB::findAct(DisplayManager *dm, string name) {
+    actmap *acts = new actmap();
+
+    sql = "SELECT * FROM Activities WHERE NAME='" + name + "';";
+
+    rc = sqlite3_exec(db, sql.c_str(), findCallback, acts, &errMsg);
+    checkDBErrors();
+
+    dm->drawTableOfActs(*acts);
+    delete acts;
+}
+
+void DB::showDistinctActs(DisplayManager *dm) {
+    std::vector<string> *v = new std::vector<string>();
+    
+    sql = "SELECT DISTINCT NAME FROM Activities;";
+
+    rc = sqlite3_exec(db, sql.c_str(), distinctCallback, v, &errMsg);
+    checkDBErrors();
+
+    dm->drawDistinctNames(*v);
+    delete v;
+}
+
+void DB::showTable(DisplayManager *dm) {
     sql = "SELECT * FROM Activities;";
 
-    rc = sqlite3_exec(db, sql.c_str(), printCallback, 0, &errMsg);
+    rc = sqlite3_exec(db, sql.c_str(), printCallback, dm, &errMsg);
+    checkDBErrors();
 }
 
 void DB::deleteRow(int id) {
-    char *query = NULL;
+    try {
+        char *query = NULL;
 
-    // Build a string using asprintf()
-    asprintf(&query, "DELETE FROM Activities WHERE ID = '%i';", id);
+        // Build a string using asprintf()
+        asprintf(&query, "DELETE FROM Activities WHERE ID = '%i';", id);
+        
+        // Prepare the query
+        sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
 
-    // Prepare the query
-    sqlite3_prepare(db, query, strlen(query), &stmt, NULL);
+        // Test it
+        rc = sqlite3_step(stmt);
 
-    // Test it
-    rc = sqlite3_step(stmt);
+        // Finalize the usage
+        sqlite3_finalize(stmt);
 
-    // Finalize the usage
-    sqlite3_finalize(stmt);
-
-    // Free up the query space
-    free(query);
+        // Free up the query space
+        free(query);
+    } catch (...) {
+        std::cout << "Could not delete row!" << std::endl;
+    }
 }
 
 void DB::closeDB() {
     sqlite3_close(db);
-    // std::cout << "DB Closed" << "\n";
 }
 
 void DB::dropTable() {

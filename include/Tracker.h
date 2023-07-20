@@ -10,9 +10,10 @@ class Tracker {
         void closeDB();
         void start();
 
-        void findActivity(std::string name);
         void addActivity();
         void displayAll();
+        void displayDistinctActs();
+        void findActivity();
 
         void dropTable();
         void showTable();

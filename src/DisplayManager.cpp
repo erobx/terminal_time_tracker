@@ -2,6 +2,7 @@
 #include <Helper.h>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 using std::string;
 using std::cout;
@@ -75,24 +76,61 @@ void DisplayManager::displayAct(Activity &act) {
 }
 
 void DisplayManager::drawMenu() {
-    drawTop(2);
+    drawTop(0);
     drawInput("1. Add an activity", "32");
     drawInput("2. Find an activity", "34");
-    drawInput("3. Display all activities", "33");
-    drawInput("4. To quit", "31");
-    drawBot(2);
+    drawInput("3. Show recorded activities", "33");
+    // drawInput("4. Display all activities", "35");
+    drawInput("4. Delete an activity", "35");
+    drawInput("5. To quit", "31");
+    drawBot(0);
 }
 
 void DisplayManager::congrats() {
-    drawTop(2);
+    drawTop(0);
     drawInput("Congrats! New high score!", "34");
-    drawBot(2);
+    drawBot(0);
 }
 
 void DisplayManager::drawActTable(Activity &act) {
-    drawTop(2);
+    drawTop(0);
     displayAct(act);
-    drawBot(2);
+    drawBot(0);
+}
+
+void DisplayManager::drawDistinctNames(std::vector<string> names) {
+    drawTop(0);
+    drawInput("List of available activities: ", "31");
+    for (int i = 0; i < names.size(); i++) {
+        drawInput(names.at(i), "32");
+    }
+    drawBot(0);
+}
+
+void DisplayManager::drawTableOfActs(actmap acts) {
+    line = std::string(99, '-');
+    spaces = line.length()-2;
+    auto it = acts.begin();
+    string name = it->second.name;
+    string line_input = "";
+    string space = "  ";
+    Activity curr;
+
+    drawTop(0);
+    drawInput("Showing results for: "+name, "32");
+
+    for (it; it != acts.end(); it++) {
+        curr = it->second;
+        string id = std::to_string(it->first);
+        line_input = "ID: " + id + space + " Date: " + curr.date + space
+            + "Start: " + curr.time_start + space
+            + "End: " + curr.time_end + space
+            + "Duration: " + curr.duration;
+        drawInput(line_input, "34");
+    }
+    drawBot(0);
+    line = std::string(37, '-');
+    spaces = line.length()-2;
 }
 
 Activity DisplayManager::takeInput() {
