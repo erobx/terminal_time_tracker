@@ -12,7 +12,6 @@ class DB {
         std::string sql = "";           // query
         int rc = 0;                     // result of opening the file
         char* errMsg = 0;               // save any error msg
-        bool found = false;             // find specific activity
 
         static int printCallback(void *dm, int count, char* data[], char* cols[]);
         static int distinctCallback(void *v, int count, char* data[], char* cols[]);

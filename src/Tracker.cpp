@@ -33,9 +33,6 @@ void Tracker::start() {
             case 3:
                 displayDistinctActs();
                 break;
-            // case 4:
-            //     displayAll();
-            //     break;
             case 4:
                 input = dm.getInt("Enter row id: ");
                 db.deleteRow(input);
